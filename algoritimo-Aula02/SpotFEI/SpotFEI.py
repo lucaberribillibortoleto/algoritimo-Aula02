@@ -6,13 +6,13 @@ def limpar_tela():
 def carregar_usuarios():
     usuarios = {}
     with open("usuarios.txt", "r") as file:
-            for linha in file:
-                partes = linha.strip().split(":")
-                if len(partes) == 2:
-                    usuario, senha = partes
-                    usuarios[usuario] = senha
-                else:
-                    print(f"Linha ignorada (formato inválido): {linha.strip()}")
+        for linha in file:
+            partes = linha.strip().split(":")
+            if len(partes) == 2:
+                usuario, senha = partes
+                usuarios[usuario] = senha
+            else:
+                print(f"Linha ignorada (formato inválido): {linha.strip()}")
     return usuarios
 
 def salvar_usuarios(usuarios):
@@ -22,13 +22,15 @@ def salvar_usuarios(usuarios):
 
 def carregar_musicas():
     musicas = []
-    with open("musics.txt", "r") as file:
-            for linha in file:
-                linha = linha.strip()
-                if linha:
-                    musicas.append(linha)
-    print("Arquivo de músicas não encontrado. Crie um arquivo chamado 'musics.txt'.")
-    return musicas
+    if not os.path.exists("musics.txt"):                        # [ADICIONADO]
+        print("Arquivo de músicas não encontrado. Crie um arquivo chamado 'musics.txt'.")  # [ADICIONADO]
+        return musicas                                          # [ADICIONADO]
+    with open("musics.txt", "r") as file:                       # [MODIFICADO]
+        for linha in file:
+            linha = linha.strip()
+            if linha:
+                musicas.append(linha)
+    return musicas                                              # [MODIFICADO]
 
 def buscar_musica(musicas, termo):
     resultado = []
@@ -39,10 +41,13 @@ def buscar_musica(musicas, termo):
     return resultado
 
 def carregar_musicas_curtidas():
-    curtidas = set()
+    curtidas = set()                                            # [MODIFICADO]
+    if not os.path.exists("musicas_curtidas.txt"):              # [ADICIONADO]
+        open("musicas_curtidas.txt", "w").close()               # [ADICIONADO]
+        return curtidas                                         # [ADICIONADO]
     with open("musicas_curtidas.txt", "r") as file:
-            for linha in file:
-                curtidas.add(linha.strip())
+        for linha in file:
+            curtidas.add(linha.strip())
     return curtidas
 
 def salvar_musica_curtida(musica, curtidas):
@@ -51,10 +56,13 @@ def salvar_musica_curtida(musica, curtidas):
             file.write(m + "\n")
 
 def carregar_musicas_descurtidas():
-    descurtidas = set()
+    descurtidas = set()                                         # [MODIFICADO]
+    if not os.path.exists("musicas_descurtidas.txt"):           # [ADICIONADO]
+        open("musicas_descurtidas.txt", "w").close()            # [ADICIONADO]
+        return descurtidas                                      # [ADICIONADO]
     with open("musicas_descurtidas.txt", "r") as file:
-            for linha in file:
-                descurtidas.add(linha.strip())
+        for linha in file:
+            descurtidas.add(linha.strip())
     return descurtidas
 
 def salvar_musicas_descurtidas(descurtidas):
@@ -205,3 +213,4 @@ elif acesso == 'C':
 
 else:
     print("Opção inválida!")
+
