@@ -5,8 +5,7 @@ def limpar_tela():
 
 def carregar_usuarios():
     usuarios = {}
-    try:
-        with open("usuarios.txt", "r") as file:
+    with open("usuarios.txt", "r") as file:
             for linha in file:
                 partes = linha.strip().split(":")
                 if len(partes) == 2:
@@ -14,8 +13,6 @@ def carregar_usuarios():
                     usuarios[usuario] = senha
                 else:
                     print(f"Linha ignorada (formato inválido): {linha.strip()}")
-    except FileNotFoundError:
-        pass
     return usuarios
 
 def salvar_usuarios(usuarios):
@@ -25,14 +22,12 @@ def salvar_usuarios(usuarios):
 
 def carregar_musicas():
     musicas = []
-    try:
-        with open("musics.txt", "r") as file:
+    with open("musics.txt", "r") as file:
             for linha in file:
                 linha = linha.strip()
                 if linha:
                     musicas.append(linha)
-    except FileNotFoundError:
-        print("Arquivo de músicas não encontrado. Crie um arquivo chamado 'musics.txt'.")
+    print("Arquivo de músicas não encontrado. Crie um arquivo chamado 'musics.txt'.")
     return musicas
 
 def buscar_musica(musicas, termo):
@@ -45,12 +40,9 @@ def buscar_musica(musicas, termo):
 
 def carregar_musicas_curtidas():
     curtidas = set()
-    try:
-        with open("musicas_curtidas.txt", "r") as file:
+    with open("musicas_curtidas.txt", "r") as file:
             for linha in file:
                 curtidas.add(linha.strip())
-    except FileNotFoundError:
-        pass
     return curtidas
 
 def salvar_musica_curtida(musica, curtidas):
@@ -60,12 +52,9 @@ def salvar_musica_curtida(musica, curtidas):
 
 def carregar_musicas_descurtidas():
     descurtidas = set()
-    try:
-        with open("musicas_descurtidas.txt", "r") as file:
+    with open("musicas_descurtidas.txt", "r") as file:
             for linha in file:
                 descurtidas.add(linha.strip())
-    except FileNotFoundError:
-        pass
     return descurtidas
 
 def salvar_musicas_descurtidas(descurtidas):
