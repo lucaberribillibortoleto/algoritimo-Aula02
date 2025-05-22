@@ -5,26 +5,36 @@ def limpar_tela():
 
 def carregar_usuarios():
     usuarios = {}
-    with open("usuarios.txt", "r") as file:
-        for linha in file:
+    try:
+        arquivo = open("usuarios.txt", "r")
+        linhas = arquivo.readlines()
+        for linha in linhas:
             partes = linha.strip().split(":")
             if len(partes) == 2:
                 usuario, senha = partes
                 usuarios[usuario] = senha
+        arquivo.close()
+    except:
+        arquivo = open("usuarios.txt", "w")
+        arquivo.close()
     return usuarios
 
 def salvar_usuarios(usuarios):
-    with open("usuarios.txt", "w") as file:
-        for usuario, senha in usuarios.items():
-            file.write(f"{usuario}:{senha}\n")
+    arquivo = open("usuarios.txt", "w")
+    for usuario, senha in usuarios.items():
+        linha = "%s:%s\n" % (usuario, senha)
+        arquivo.write(linha)
+    arquivo.close()
 
 def carregar_musicas():
     musicas = []
-    with open("musics.txt", "r") as file:
-        for linha in file:
-            linha = linha.strip()
-            if linha:
-                musicas.append(linha)
+    arquivo = open("musics.txt", "r")
+    linhas = arquivo.readlines()
+    for linha in linhas:
+        linha = linha.strip()
+        if linha:
+            musicas.append(linha)
+    arquivo.close()
     return musicas
 
 def buscar_musica(musicas, busca):
@@ -37,33 +47,41 @@ def buscar_musica(musicas, busca):
 
 def carregar_musicas_curtidas():
     curtidas = set()
-    if not os.path.exists("musicas_curtidas.txt"):
-        open("musicas_curtidas.txt", "w").close()
-        return curtidas
-    with open("musicas_curtidas.txt", "r") as file:
-        for linha in file:
+    try:
+        arquivo = open("musicas_curtidas.txt", "r")
+        linhas = arquivo.readlines()
+        for linha in linhas:
             curtidas.add(linha.strip())
+        arquivo.close()
+    except:
+        arquivo = open("musicas_curtidas.txt", "w")
+        arquivo.close()
     return curtidas
 
 def salvar_musica_curtida(musica, curtidas):
-    with open("musicas_curtidas.txt", "w") as file:
-        for m in curtidas:
-            file.write(m + "\n")
+    arquivo = open("musicas_curtidas.txt", "w")
+    for m in curtidas:
+        arquivo.write("%s\n" % m)
+    arquivo.close()
 
 def carregar_musicas_descurtidas():
     descurtidas = set()
-    if not os.path.exists("musicas_descurtidas.txt"):
-        open("musicas_descurtidas.txt", "w").close()
-        return descurtidas
-    with open("musicas_descurtidas.txt", "r") as file:
-        for linha in file:
+    try:
+        arquivo = open("musicas_descurtidas.txt", "r")
+        linhas = arquivo.readlines()
+        for linha in linhas:
             descurtidas.add(linha.strip())
+        arquivo.close()
+    except:
+        arquivo = open("musicas_descurtidas.txt", "w")
+        arquivo.close()
     return descurtidas
 
 def salvar_musicas_descurtidas(descurtidas):
-    with open("musicas_descurtidas.txt", "w") as file:
-        for m in descurtidas:
-            file.write(m + "\n")
+    arquivo = open("musicas_descurtidas.txt", "w")
+    for m in descurtidas:
+        arquivo.write("%s\n" % m)
+    arquivo.close()
 
 def menu_curtir_musicas(musicas):
     curtidas = carregar_musicas_curtidas()
@@ -144,24 +162,29 @@ def menu_historico():
 
 def carregar_playlists(usuario):
     playlists = {}
-    nome_arquivo = f"playlists_{usuario}.txt"
-    if not os.path.exists(nome_arquivo):
-        open(nome_arquivo, "w").close()
-        return playlists
-    with open(nome_arquivo, "r") as file:
-        for linha in file:
-            partes = linha.strip().split("|")
+    nome_arquivo = "playlists_" + usuario + ".txt"
+    try:
+        arquivo = open(nome_arquivo, "r")
+        linhas = arquivo.readlines()
+        for linha in linhas:
+            partes = linha.strip().split(":")
             if len(partes) == 2:
-                nome, musicas = partes
-                playlists[nome] = musicas.split(",") if musicas else []
+                nome = partes[0]
+                musicas = partes[1].split(",") if partes[1] else []
+                playlists[nome] = musicas
+        arquivo.close()
+    except:
+        arquivo = open(nome_arquivo, "w")
+        arquivo.close()
     return playlists
 
 def salvar_playlists(usuario, playlists):
-    nome_arquivo = f"playlists_{usuario}.txt"
-    with open(nome_arquivo, "w") as file:
-        for nome, musicas in playlists.items():
-            linha = f"{nome}|{','.join(musicas)}\n"
-            file.write(linha)
+    nome_arquivo = "playlists_" + usuario + ".txt"
+    arquivo = open(nome_arquivo, "w")
+    for nome, musicas in playlists.items():
+        linha = nome + ":" + ",".join(musicas) + "\n"
+        arquivo.write(linha)
+    arquivo.close()
 
 def menu_playlists(usuario, musicas_disponiveis):
     playlists = carregar_playlists(usuario)
@@ -192,7 +215,7 @@ def menu_playlists(usuario, musicas_disponiveis):
             else:
                 nova = []
                 while True:
-                    busca = input("Buscar música para colocar na playlist: ")
+                    busca = input("Buscar música para a playlist: ")
                     if not busca:
                         break
                     resultados = buscar_musica(musicas_disponiveis, busca)
@@ -204,9 +227,7 @@ def menu_playlists(usuario, musicas_disponiveis):
                         if escolha in resultados:
                             nova.append(escolha)
                         else:
-                            print("Música não encontrada entre os resultados.")
-                    else:
-                        print("Nenhuma música encontrada.")
+                            print("Música não encontrada.")
                 playlists[nome_playlist] = nova
                 salvar_playlists(usuario, playlists)
                 print("Playlist criada!")
@@ -262,7 +283,7 @@ if acesso == 'L':
         print("Usuário autenticado com sucesso!")
         menu_principal(usuario)
     else:
-        print("Este usuário nao existe!")
+        print("Este usuário não existe!")
 
 elif acesso == 'C':
     novo_usuario = input("Digite seu novo usuário: ")
@@ -275,4 +296,3 @@ elif acesso == 'C':
         salvar_usuarios(usuarios)
         print("Usuário cadastrado com sucesso!")
         menu_principal(novo_usuario)
-
