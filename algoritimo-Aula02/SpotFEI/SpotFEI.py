@@ -11,8 +11,6 @@ def carregar_usuarios():
             if len(partes) == 2:
                 usuario, senha = partes
                 usuarios[usuario] = senha
-            else:
-                print(f"Linha ignorada (formato inválido): {linha.strip()}")
     return usuarios
 
 def salvar_usuarios(usuarios):
@@ -22,15 +20,13 @@ def salvar_usuarios(usuarios):
 
 def carregar_musicas():
     musicas = []
-    if not os.path.exists("musics.txt"):                        # [ADICIONADO]
-        print("Arquivo de músicas não encontrado. Crie um arquivo chamado 'musics.txt'.")  # [ADICIONADO]
-        return musicas                                          # [ADICIONADO]
-    with open("musics.txt", "r") as file:                       # [MODIFICADO]
+    return musicas
+    with open("musics.txt", "r") as file:
         for linha in file:
             linha = linha.strip()
             if linha:
                 musicas.append(linha)
-    return musicas                                              # [MODIFICADO]
+    return musicas
 
 def buscar_musica(musicas, termo):
     resultado = []
@@ -41,10 +37,10 @@ def buscar_musica(musicas, termo):
     return resultado
 
 def carregar_musicas_curtidas():
-    curtidas = set()                                            # [MODIFICADO]
-    if not os.path.exists("musicas_curtidas.txt"):              # [ADICIONADO]
-        open("musicas_curtidas.txt", "w").close()               # [ADICIONADO]
-        return curtidas                                         # [ADICIONADO]
+    curtidas = set()
+    if not os.path.exists("musicas_curtidas.txt"):
+        open("musicas_curtidas.txt", "w").close()
+        return curtidas
     with open("musicas_curtidas.txt", "r") as file:
         for linha in file:
             curtidas.add(linha.strip())
@@ -56,10 +52,10 @@ def salvar_musica_curtida(musica, curtidas):
             file.write(m + "\n")
 
 def carregar_musicas_descurtidas():
-    descurtidas = set()                                         # [MODIFICADO]
-    if not os.path.exists("musicas_descurtidas.txt"):           # [ADICIONADO]
-        open("musicas_descurtidas.txt", "w").close()            # [ADICIONADO]
-        return descurtidas                                      # [ADICIONADO]
+    descurtidas = set()
+    if not os.path.exists("musicas_descurtidas.txt"):
+        open("musicas_descurtidas.txt", "w").close()
+        return descurtidas
     with open("musicas_descurtidas.txt", "r") as file:
         for linha in file:
             descurtidas.add(linha.strip())
@@ -91,8 +87,6 @@ def menu_curtir_musicas(musicas):
                 elif escolha == "2":
                     print("Música permanece curtida.\n")
                     break
-                else:
-                    print("Opção inválida! Tente novamente.")
             elif musica in descurtidas:
                 print("1. Curtir")
                 print("2. Manter descurtida")
@@ -107,8 +101,6 @@ def menu_curtir_musicas(musicas):
                 elif escolha == "2":
                     print("Música permanece descurtida.\n")
                     break
-                else:
-                    print("Opção inválida! Tente novamente.")
             else:
                 print("1. Curtir")
                 print("2. Não curtir")
@@ -123,9 +115,6 @@ def menu_curtir_musicas(musicas):
                     salvar_musicas_descurtidas(descurtidas)
                     print("Música não curtida.\n")
                     break
-                else:
-                    print("Opção inválida! Tente novamente.")
-
 def menu_historico():
     while True:
         print("\n--- GERENCIAR HISTÓRICO ---")
@@ -141,7 +130,7 @@ def menu_historico():
                 for m in curtidas:
                     print(f"• {m}")
             else:
-                print("\nNenhuma música curtida ainda.")
+                print("\nNenhuma música curtida.")
         elif opcao == "2":
             descurtidas = carregar_musicas_descurtidas()
             if descurtidas:
@@ -149,11 +138,88 @@ def menu_historico():
                 for m in descurtidas:
                     print(f"• {m}")
             else:
-                print("\nNenhuma música descurtida ainda.")
+                print("\nNenhuma música descurtida.")
         elif opcao == "3":
             break
-        else:
-            print("Opção inválida! Tente novamente.")
+# ----------------- PLAYLISTS --------------------
+
+def carregar_playlists(usuario):
+    playlists = {}
+    nome_arquivo = f"playlists_{usuario}.txt"
+    if not os.path.exists(nome_arquivo):
+        open(nome_arquivo, "w").close()
+        return playlists
+    with open(nome_arquivo, "r") as file:
+        for linha in file:
+            partes = linha.strip().split("|")
+            if len(partes) == 2:
+                nome, musicas = partes
+                playlists[nome] = musicas.split(",") if musicas else []
+    return playlists
+
+def salvar_playlists(usuario, playlists):
+    nome_arquivo = f"playlists_{usuario}.txt"
+    with open(nome_arquivo, "w") as file:
+        for nome, musicas in playlists.items():
+            linha = f"{nome}|{','.join(musicas)}\n"
+            file.write(linha)
+
+def menu_playlists(usuario, musicas_disponiveis):
+    playlists = carregar_playlists(usuario)
+
+    while True:
+        print("\n--- GERENCIAR PLAYLISTS ---")
+        print("1. Ver playlists")
+        print("2. Criar nova playlist")
+        print("3. Excluir playlist")
+        print("4. Voltar")
+        opcao = input("Escolha uma opção: ")
+
+        if opcao == "1":
+            if not playlists:
+                print("\nNenhuma playlist encontrada.")
+            else:
+                for nome, musicas in playlists.items():
+                    print(f"\nPlaylist: {nome}")
+                    if musicas:
+                        for m in musicas:
+                            print(f"• {m}")
+                    else:
+                        print("  (vazia)")
+        elif opcao == "2":
+            nome_playlist = input("Nome da nova playlist: ")
+            if nome_playlist in playlists:
+                print("Essa playlist já existe.")
+            else:
+                nova = []
+                while True:
+                    termo = input("Buscar música para adicionar: ")
+                    if not termo:
+                        break
+                    resultados = buscar_musica(musicas_disponiveis, termo)
+                    if resultados:
+                        print("Resultados:")
+                        for i, m in enumerate(resultados, 1):
+                            print(f"{i}. {m}")
+                        escolha = input("Escolha o número da música para adicionar: ")
+                        if escolha.isdigit():
+                            idx = int(escolha) - 1
+                            if 0 <= idx < len(resultados):
+                                nova.append(resultados[idx])
+                    else:
+                        print("Nenhuma música encontrada.")
+                playlists[nome_playlist] = nova
+                salvar_playlists(usuario, playlists)
+                print("Playlist criada!")
+        elif opcao == "3":
+            nome = input("Digite o nome da playlist para excluir: ")
+            if nome in playlists:
+                del playlists[nome]
+                salvar_playlists(usuario, playlists)
+                print("Playlist excluída.")
+        elif opcao == "4":
+            break
+# --------------- MENU PRINCIPAL -----------------
 
 def menu_principal(nome_usuario):
     musicas = carregar_musicas()
@@ -162,7 +228,8 @@ def menu_principal(nome_usuario):
         print(f"\n--- MENU PRINCIPAL ({nome_usuario}) ---")
         print("1. Buscar música")
         print("2. Gerenciar histórico")
-        print("3. Sair")
+        print("3. Gerenciar playlists")
+        print("4. Sair")
         opcao = input("Escolha uma opção: ")
 
         if opcao == "1":
@@ -178,10 +245,14 @@ def menu_principal(nome_usuario):
         elif opcao == "2":
             menu_historico()
         elif opcao == "3":
+            menu_playlists(nome_usuario, musicas)
+        elif opcao == "4":
             print("Saindo do SpotFEI. Até logo!")
             break
         else:
             print("Opção inválida! Tente novamente.")
+
+# ------------------- LOGIN -----------------------
 
 usuarios = carregar_usuarios()
 
@@ -210,7 +281,7 @@ elif acesso == 'C':
         salvar_usuarios(usuarios)
         print("Usuário cadastrado com sucesso!")
         menu_principal(novo_usuario)
-
 else:
     print("Opção inválida!")
+
 
